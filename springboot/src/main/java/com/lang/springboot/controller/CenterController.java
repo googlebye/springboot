@@ -14,6 +14,7 @@ import com.lang.springboot.dto.InfoDto;
 public class CenterController {
 
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
+    @ResponseBody
     public String hello() {
         return "hello world";
     }
