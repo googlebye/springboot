@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *******************************************************************************/
-package com.lang.springboot.constants;
+package com.lang.constants;
 
 /**
  * 带UTF-8 charset 定义的MediaType.

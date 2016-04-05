@@ -1,4 +1,4 @@
-package com.lang.springboot;
+package com.lang;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

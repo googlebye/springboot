@@ -1,4 +1,4 @@
-package com.lang.springboot.constants;
+package com.lang.constants;
 
 import java.nio.charset.Charset;
 

@@ -1,4 +1,4 @@
-package com.lang.springboot;
+package com.lang;
 
 /**
  * Hello world!
