@@ -8,45 +8,39 @@ import java.util.UUID;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import com.lang.dao.IServerDao;
+import com.lang.dao.IClientDao;
+import com.lang.dto.RegistDto;
 import com.lang.service.IGroupService;
 import com.lang.service.IGrpsService;
 import com.lang.service.IHtlsService;
-import com.lang.service.IServerService;
-import com.lang.springboot.dto.RegistInfo;
+import com.lang.service.IClientService;
 import com.lang.utils.ZipUtil;
 
-public class ServerServiceImpl implements IServerService {
+@Service
+public class ClientServiceImpl implements IClientService {
 
-    private static Logger log = Logger.getLogger(IServerService.class);
-    private IServerDao    serverDao;
+    private static Logger log = Logger.getLogger(IClientService.class);
+    @Autowired
+    private IClientDao    clientDao;
+    @Autowired
     private IGroupService groupService;
+    @Autowired
     private IHtlsService  htlsService;
+    @Autowired
     private IGrpsService  grpsService;
 
-    public void setGroupService(IGroupService groupService) {
-        this.groupService = groupService;
-    }
+    public String register(RegistDto registEntity) {
 
-    public void setHtlsService(IHtlsService htlsService) {
-        this.htlsService = htlsService;
-    }
+        String type = registEntity.getServerType();
+        String mac = registEntity.getMac();
+        String grps = registEntity.getGrps();
+        String htls = registEntity.getHtls();
+        String version = registEntity.getVersion();
 
-    public void setGrpsService(IGrpsService grpsService) {
-        this.grpsService = grpsService;
-    }
-
-    public void setServerDao(IServerDao serverDao) {
-        this.serverDao = serverDao;
-    }
-
-    public String register(RegistInfo registInfo) {
-        String type = registInfo.getServerType();
-        String mac = registInfo.getMac();
-        String grps = registInfo.getGrps();
-        String htls = registInfo.getHtls();
-        List<Map<String, Object>> list = serverDao.listRegistred();
+        List<Map<String, Object>> list = clientDao.listClients();
         Map<String, Object> sameGroup = null;
 
         for (Map<String, Object> map : list) {
@@ -73,44 +67,46 @@ public class ServerServiceImpl implements IServerService {
         }
 
         groupService.insertIfAbsent(uuid);
-        grpsService.insertIfAbsent(registInfo.getHotelGroups());
-        htlsService.insertIfAbsent(registInfo.getHotels());
-        serverDao.register(type, mac, grps, htls, uuid);
+        grpsService.insertIfAbsent(registEntity.getHotelGroups());
+        htlsService.insertIfAbsent(registEntity.getHotels());
+        clientDao.register(type, mac, grps, htls, uuid, version);
 
         return uuid;
     }
 
     public List<Map<String, Object>> listRegistred() {
-        return serverDao.listRegistred();
+        return clientDao.listClients();
     }
 
-    public String checkVersion(String type, String mac, String uuid, String currentVersion) {
-        List<Map<String, Object>> list = serverDao.listRegistred(type, mac);
+    public boolean checkVersion(String type, String mac, String uuid, String currentVersion) {
+        List<Map<String, Object>> list = clientDao.listClients(type, mac);
 
         if (list.size() == 0) {
             log.info("method:checkVersion not regist,mac=" + mac + ",type=" + type);
-            return currentVersion;
+            return false;
         } else if (list.size() > 1) {
             log.info("method:checkVersion duplicate registed,mac=" + mac + ",type=" + type);
-            return currentVersion;
+            return false;
         } else {
             Map<String, Object> group = groupService.findByUUID(uuid);
 
             if (group != null) {
 
+                String isReady = MapUtils.getString(group, "is_ready");
                 String newVersion = MapUtils.getString(group, "version");
-                String registedVersion = MapUtils.getString(list.get(0), "version");
+                
+                clientDao.updateRegistedVersion(type, mac, currentVersion);
 
-                if (!currentVersion.equalsIgnoreCase(registedVersion)) {
-                    serverDao.updateRegistedVersion(type, mac, currentVersion);
+                if (!currentVersion.equalsIgnoreCase(newVersion) && "T".equals(isReady)) {
+                    return true;
                 }
-
-                return newVersion;
+                
             } else {
                 throw new RuntimeException("method:checkVersion group not found,uuid=" + uuid);
             }
         }
 
+        return false;
     }
 
     public File getFile(String type, String uuid) {

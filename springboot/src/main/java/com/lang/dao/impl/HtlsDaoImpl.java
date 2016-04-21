@@ -3,18 +3,17 @@ package com.lang.dao.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import com.lang.dao.IHtlsDao;
 import com.lang.utils.SQLHelper;
-
+@Repository
 public class HtlsDaoImpl implements IHtlsDao {
 
+    @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public Map<String, Object> findByCode(String code) {
         SQLHelper sh = new SQLHelper("select * from htls where code = ? ");

@@ -4,17 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.lang.dao.IGrpsDao;
 import com.lang.service.IGrpsService;
-
+@Service
 public class GrpsServiceImpl implements IGrpsService {
 
+    @Autowired
     private IGrpsDao grpsDao;
-
-    public void setGrpsDao(IGrpsDao grpsDao) {
-        this.grpsDao = grpsDao;
-    }
 
     public void insertIfAbsent(String code, String descript) {
         Map<String, Object> htl = grpsDao.findByCode(code);

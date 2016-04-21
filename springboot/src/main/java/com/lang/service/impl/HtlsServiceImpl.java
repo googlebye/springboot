@@ -4,17 +4,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.lang.dao.IHtlsDao;
 import com.lang.service.IHtlsService;
-
+@Service
 public class HtlsServiceImpl implements IHtlsService {
-
+    @Autowired
     private IHtlsDao htlsDao;
-
-    public void setHtlsDao(IHtlsDao htlsDao) {
-        this.htlsDao = htlsDao;
-    }
 
     public void insertIfAbsent(String code, String descript, String grpcode) {
         Map<String, Object> htl = htlsDao.findByCode(code);

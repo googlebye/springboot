@@ -3,18 +3,18 @@ package com.lang.dao.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import com.lang.dao.IGroupDao;
 import com.lang.utils.SQLHelper;
 
+@Repository
 public class GroupDaoImpl implements IGroupDao {
 
+    @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public Map<String, Object> findByUUID(String uuid) {
         List<Map<String, Object>> list = list(uuid);
