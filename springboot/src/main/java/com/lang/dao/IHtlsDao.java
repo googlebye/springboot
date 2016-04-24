@@ -1,12 +1,12 @@
 package com.lang.dao;
 
-import java.util.Map;
+import org.springframework.data.repository.CrudRepository;
+
+import com.lang.entity.Htl;
 
 
-public interface IHtlsDao {
+public interface IHtlsDao extends CrudRepository<Htl, Long>{
 
-    Map<String, Object> findByCode(String code);
-
-    void insert(String code, String descript, String grpcode);
+    Htl findByCode(String code);
 
 }

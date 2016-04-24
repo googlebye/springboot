@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.lang.dao.IGrpsDao;
+import com.lang.entity.Grp;
 import com.lang.service.IGrpsService;
 @Service
 public class GrpsServiceImpl implements IGrpsService {
@@ -16,9 +17,12 @@ public class GrpsServiceImpl implements IGrpsService {
     private IGrpsDao grpsDao;
 
     public void insertIfAbsent(String code, String descript) {
-        Map<String, Object> htl = grpsDao.findByCode(code);
+        Grp htl = grpsDao.findByCode(code);
         if (htl == null) {
-            grpsDao.insert(code, descript);
+            htl = new Grp();
+            htl.code = code;
+            htl.descript = descript;
+            grpsDao.save(htl);
         }
     }
 

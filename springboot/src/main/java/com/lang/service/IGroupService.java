@@ -1,10 +1,10 @@
 package com.lang.service;
 
-import java.util.Map;
+import com.lang.entity.ClientGroup;
 
 public interface IGroupService {
 
-    void insertIfAbsent(String uuid);
+    ClientGroup insertIfAbsent(String uuid);
 
-    Map<String, Object> findByUUID(String uuid);
+    ClientGroup findByUUID(String uuid);
 }

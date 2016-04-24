@@ -1,16 +1,11 @@
 package com.lang.dao;
 
-import java.util.List;
-import java.util.Map;
+import org.springframework.data.repository.CrudRepository;
 
-public interface IClientDao {
+import com.lang.entity.Client;
 
-    List<Map<String, Object>> listClients(String type, String mac);
+public interface IClientDao extends CrudRepository<Client, Long>{
 
-    List<Map<String, Object>> listClients();
-
-    void register(String type, String mac, String grps, String htls, String uuid, String version);
-
-    void updateRegistedVersion(String type, String mac, String currentVersion);
+    Client findByTypeAndMac(String type, String mac);
 
 }

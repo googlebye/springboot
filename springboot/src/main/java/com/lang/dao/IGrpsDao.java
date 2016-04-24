@@ -1,12 +1,12 @@
 package com.lang.dao;
 
-import java.util.Map;
+import org.springframework.data.repository.CrudRepository;
+
+import com.lang.entity.Grp;
 
 
-public interface IGrpsDao {
+public interface IGrpsDao extends CrudRepository<Grp, Long>{
 
-    Map<String, Object> findByCode(String code);
-
-    void insert(String code, String descript);
+    Grp findByCode(String code);
 
 }

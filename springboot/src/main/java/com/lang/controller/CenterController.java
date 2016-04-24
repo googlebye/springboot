@@ -6,16 +6,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,59 +34,43 @@ public class CenterController {
     @Autowired
     private IClientService clientService;
 
-    @RequestMapping(value = "/ctrl/hello", produces = MediaTypes.JSON_UTF_8)
-    public HashMap<String, Object> hello() {
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        map.put("age", 12);
-        map.put("name", "Lang");
-        return map;
-    }
-
+    /**
+     * 终端向服务器注册，如果没有注册过，会将注册信息里面的集团、酒店信息存入服务端的表里面;
+     * <p>
+     * 如果已经注册过，则返回上传注册时所属归类的唯一编码
+     * 
+     * @param registInfo
+     * @return 此终端所属归类的唯一编码
+     */
     @RequestMapping(value = "/ctrl/register", produces = MediaTypes.JSON_UTF_8, consumes = MediaTypes.JSON_UTF_8)
-    public String register(@RequestBody RegistDto registInfo) {
+    public Long register(@RequestBody RegistDto registInfo) {
         return clientService.register(registInfo);
     }
+    
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    /**
+     * 终端向服务器报告状态，服务器返回是否有新版本
+     * 
+     * @param reportDtoList
+     * @return
+     */
+    @SuppressWarnings({ "rawtypes" })
     @RequestMapping(value = "/ctrl/report", produces = MediaTypes.JSON_UTF_8, consumes = MediaTypes.JSON_UTF_8)
     public boolean report(@RequestBody List<ReportDto> reportDtoList) {
-        
-        boolean hasNewVersion = false;
-
-        for (ReportDto reportDto : reportDtoList) {
-            if ("clientSumery".equalsIgnoreCase(reportDto.getCategory())) {
-                Map<String, Object> clientStatus = (Map<String, Object>) reportDto.getDetail();
-                
-                String serverType = MapUtils.getString(clientStatus, "serverType");
-                String currentVersion = MapUtils.getString(clientStatus, "version");
-                String mac = MapUtils.getString(clientStatus, "mac");
-                String uuid = MapUtils.getString(clientStatus, "uuid");
-                
-                hasNewVersion = clientService.checkVersion(serverType, mac, uuid, currentVersion);
-            } else {
-                // hadle other report info
-            }
-        }
-
-        return hasNewVersion;
+        return clientService.handleReports(reportDtoList);
     }
 
+    
     @RequestMapping(value = "/ctrl/download", produces = MediaTypes.JSON_UTF_8, consumes = MediaTypes.JSON_UTF_8)
-    public void download(@RequestBody DownloadDto downloadEntity, HttpServletResponse response) throws IOException {
+    public void download(@RequestBody DownloadDto downloadDto, HttpServletResponse response) throws IOException {
 
-        if (downloadEntity.getIsDownloading()) {
+        if (downloadDto.getIsDownloading()) {
             // Client is downloading files,print the progress on screen
-            BigDecimal d1 = new BigDecimal(downloadEntity.getAvailable());
-            BigDecimal d2 = new BigDecimal(downloadEntity.getTotalSize());
-
-            String percent = d1.divide(d2, 4, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "%";
-            String d = d1.divide(BigDecimal.valueOf(1000000), 2, BigDecimal.ROUND_HALF_UP) + "M/" + d2.divide(BigDecimal.valueOf(1000000), 2, BigDecimal.ROUND_HALF_UP) + "M";
-
-            logger.info("downloading.... " + d + " " + percent);
+            clientService.handleDownloadingProgress(downloadDto);
             return;
         }
 
-        File file = clientService.getFile(downloadEntity.getType(), downloadEntity.getUuid());
+        File file = clientService.getFile(downloadDto.getClientId());
 
         if (!file.exists()) {
             String errorMessage = "Sorry. The file you are looking for does not exist";

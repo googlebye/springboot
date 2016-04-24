@@ -2,18 +2,23 @@ package com.lang.service;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
+import com.lang.dto.DownloadDto;
 import com.lang.dto.RegistDto;
+import com.lang.dto.ReportDto;
 
 public interface IClientService {
 
-    String register(RegistDto registInfo);
-
-    List<Map<String, Object>> listRegistred();
+    Long register(RegistDto registInfo);
 
     boolean checkVersion(String type, String mac, String uuid, String currentVersion);
 
-    File getFile(String type, String uuid);
+    File getFile(Long clientId);
+
+    void addReportHandlerMapping(String report, IReportHandler handler);
+
+    boolean handleReports(List<ReportDto> reportDtoList);
+
+    void handleDownloadingProgress(DownloadDto downloadDto);
 
 }
